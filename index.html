@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVault - Password Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+    <!-- Face Registration Modal -->
+    <div id="registerModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Face Registration</h2>
+            <div class="registration-steps">
+                <div class="step active" id="step1">
+                    <h3>Step 1: Position Your Face</h3>
+                    <div class="camera-container">
+                        <video id="registerVideo" width="400" height="300" autoplay></video>
+                        <div class="face-guide"></div>
+                    </div>
+                    <p>Please position your face within the circle and ensure good lighting</p>
+                    <button id="startRegistrationBtn" class="primary-btn">Start Registration</button>
+                </div>
+                
+                <div class="step hidden" id="step2">
+                    <h3>Step 2: Scanning Face</h3>
+                    <div class="scanning-container">
+                        <div class="camera-container">
+                            <video id="scanVideo" width="400" height="300" autoplay></video>
+                            <div class="scanning-overlay">
+                                <div class="scan-line"></div>
+                            </div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <div class="progress-text" id="progressText">0%</div>
+                        </div>
+                    </div>
+                    <p id="scanStatus">Initializing face scan...</p>
+                </div>
+                
+                <div class="step hidden" id="step3">
+                    <h3>Registration Complete! ✅</h3>
+                    <div class="success-animation">
+                        <div class="checkmark">✓</div>
+                    </div>
+                    <p>Your face has been successfully registered.</p>
+                    <p>You can now use face recognition to access SecureVault.</p>
+                    <button id="completeRegistrationBtn" class="primary-btn">Continue to Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Upload Modal -->
+    <div id="fileUploadModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Upload Files</h2>
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <h3>Drop files here or click to browse</h3>
+                    <p>Supports images and documents (Max 10MB per file)</p>
+                    <input type="file" id="fileInput" multiple accept="image/*,.pdf,.doc,.docx,.txt" hidden>
+                    <button class="primary-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+                </div>
+                
+                <div class="file-preview" id="filePreview">
+                    <h4>Selected Files:</h4>
+                    <div class="file-list" id="fileList"></div>
+                </div>
+                
+                <div class="upload-actions">
+                    <button id="uploadFilesBtn" class="primary-btn">Upload Files</button>
+                    <button id="cancelUploadBtn" class="secondary-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biometric Authentication Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <h2>Biometric Authentication</h2>
+            
+            <!-- First Time User -->
+            <div id="firstTimeAuth" class="auth-section">
+                <div class="welcome-message">
+                    <h3>Welcome to SecureVault! 👋</h3>
+                    <p>It looks like this is your first time here. You need to register your face to use biometric authentication.</p>
+                    <button id="registerFaceBtn" class="primary-btn">Register Your Face</button>
+                    <p class="or-divider">or</p>
+                    <button id="useIdFirstTimeBtn" class="secondary-btn">Use ID Authentication</button>
+                </div>
+            </div>
+            
+            <!-- Returning User -->
+            <div id="returningAuth" class="auth-section hidden">
+                <div class="auth-options">
+                    <button id="faceAuthBtn" class="auth-btn">
+                        <span class="auth-icon">📷</span>
+                        Face Recognition
+                    </button>
+                    <button id="idAuthBtn" class="auth-btn">
+                        <span class="auth-icon">🆔</span>
+                        ID Authentication
+                    </button>
+                </div>
+                
+                <!-- Face Recognition Section -->
+                <div id="faceAuthSection" class="auth-section hidden">
+                    <div class="camera-container">
+                        <video id="video" width="400" height="300" autoplay></video>
+                        <canvas id="canvas" class="hidden"></canvas>
+                        <div class="scanning-overlay">
+                            <div class="scan-line"></div>
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="loginProgressFill"></div>
+                        </div>
+                        <div class="progress-text" id="loginProgressText">0%</div>
+                    </div>
+                    <div class="auth-controls">
+                        <button id="captureBtn" class="primary-btn">Start Face Recognition</button>
+                        <button id="retryFaceBtn" class="secondary-btn">Retry</button>
+                    </div>
+                    <p id="faceStatus" class="status-text"></p>
+                </div>
+                
+                <!-- ID Authentication Section -->
+                <div id="idAuthSection" class="auth-section hidden">
+                    <div class="id-input">
+                        <label for="idInput">Enter Default ID:</label>
+                        <input type="password" id="idInput" placeholder="Enter 'tithi' to authenticate">
+                        <button id="verifyIdBtn" class="primary-btn">Verify ID</button>
+                    </div>
+                    <p id="idStatus" class="status-text"></p>
+                </div>
+            </div>
+            
+            <button id="closeAuthBtn" class="secondary-btn">Close</button>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div class="container hidden" id="mainApp">
+        <div class="auth-header">
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </div>
+        
+        <h1>SecureVault</h1>
+        <p class="subtitle">Your personal encrypted password manager</p>
+        
+        <!-- Tabs Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="passwords">Passwords</button>
+            <button class="tab-btn" data-tab="files">Files & Documents</button>
+        </div>
+        
+        <!-- Passwords Tab -->
+        <div id="passwordsTab" class="tab-content active">
+            <div class="form">
+                <div class="row">
+                    <label for="type">Type</label>
+                    <select id="type">
+                        <option value="Website">Website</option>
+                        <option value="App">App</option>
+                    </select>
+                </div>
+                
+                <div class="row">
+                    <label id="nameLabel" for="name">Website (e.g. example.com)</label>
+                    <input type="text" id="name" placeholder="example.com">
+                </div>
+                
+                <div class="row">
+                    <label for="username">Username/Email</label>
+                    <input type="text" id="username" placeholder="your@email.com">
+                </div>
+                
+                <div class="row password-row">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter password">
+                    <button class="small-btn" id="generateBtn">Generate</button>
+                </div>
+                
+                <div class="row">
+                    <label for="masterKey">Master Key</label>
+                    <input type="password" id="masterKey" placeholder="Your master key">
+                </div>
+                
+                <button class="primary-btn" id="saveBtn">Save Password</button>
+                <button class="secondary-btn" id="clearBtn">Clear Form</button>
+            </div>
+            
+            <h2>Saved Passwords</h2>
+            <table id="passwordTable">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Password entries will appear here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Files Tab -->
+        <div id="filesTab" class="tab-content">
+            <div class="files-header">
+                <button id="uploadNewBtn" class="primary-btn">📁 Upload New Files</button>
+                <div class="storage-info">
+                    <span>Storage: <span id="storageUsed">0 MB</span> used</span>
+                </div>
+            </div>
+            
+            <div class="files-grid" id="filesGrid">
+                <!-- Files will appear here -->
+            </div>
+            
+            <div class="empty-state" id="emptyFilesState">
+                <div class="empty-icon">📁</div>
+                <h3>No files uploaded yet</h3>
+                <p>Upload your important documents and images to keep them secure.</p>
+                <button class="primary-btn" onclick="showUploadModal()">Upload Your First File</button>
+            </div>
+        </div>
+        
+        <p class="note">Your passwords and files are encrypted with your master key and stored locally in your browser.</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
