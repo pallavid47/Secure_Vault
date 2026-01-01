@@ -354,18 +354,18 @@ function deleteFile(fileId) {
 // Face Registration Functions
 async function startFaceRegistration() {
   try {
-    // Try environment (rear) camera first for laptop webcam, fallback to user (front)
+    // Try user (front) camera first for selfie, fallback to default
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         audio: false,
         video: {
           width: { ideal: 400 },
           height: { ideal: 300 },
-          facingMode: { ideal: "environment" }
+          facingMode: { ideal: "user" }
         }
       });
     } catch (envErr) {
-      // If environment fails, try user camera without specifying device
+      // If user camera fails, try without specifying device
       stream = await navigator.mediaDevices.getUserMedia({
         audio: false,
         video: {
@@ -433,18 +433,18 @@ function generateFaceSignature() {
 // Face Recognition Functions
 async function startCamera() {
   try {
-    // Try environment (rear) camera first for laptop webcam, fallback to user (front)
+    // Try user (front) camera first for selfie, fallback to default
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         audio: false,
         video: {
           width: { ideal: 400 },
           height: { ideal: 300 },
-          facingMode: { ideal: "environment" }
+          facingMode: { ideal: "user" }
         }
       });
     } catch (envErr) {
-      // If environment fails, try user camera without specifying device
+      // If user camera fails, try without specifying device
       stream = await navigator.mediaDevices.getUserMedia({
         audio: false,
         video: {
