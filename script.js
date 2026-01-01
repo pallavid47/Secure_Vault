@@ -360,7 +360,7 @@ async function startFaceRegistration() {
       video: {
         width: { ideal: 400 },
         height: { ideal: 300 },
-        facingMode: "user"
+        facingMode: { exact: "user" }
       }
     });
     registerVideo.srcObject = stream;
@@ -428,7 +428,7 @@ async function startCamera() {
       video: {
         width: { ideal: 400 },
         height: { ideal: 300 },
-        facingMode: "user"
+        facingMode: { exact: "user" }
       }
     });
     video.srcObject = stream;
