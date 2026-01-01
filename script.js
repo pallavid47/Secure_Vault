@@ -354,13 +354,26 @@ function deleteFile(fileId) {
 // Face Registration Functions
 async function startFaceRegistration() {
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { 
-        width: 400, 
-        height: 300,
-        facingMode: "user" 
-      } 
-    });
+    // Try environment (rear) camera first for laptop webcam, fallback to user (front)
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          width: { ideal: 400 },
+          height: { ideal: 300 },
+          facingMode: { ideal: "environment" }
+        }
+      });
+    } catch (envErr) {
+      // If environment fails, try user camera without specifying device
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          width: { ideal: 400 },
+          height: { ideal: 300 }
+        }
+      });
+    }
     registerVideo.srcObject = stream;
   } catch (err) {
     alert("Error accessing camera: " + err.message);
@@ -420,13 +433,26 @@ function generateFaceSignature() {
 // Face Recognition Functions
 async function startCamera() {
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { 
-        width: 400, 
-        height: 300,
-        facingMode: "user" 
-      } 
-    });
+    // Try environment (rear) camera first for laptop webcam, fallback to user (front)
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          width: { ideal: 400 },
+          height: { ideal: 300 },
+          facingMode: { ideal: "environment" }
+        }
+      });
+    } catch (envErr) {
+      // If environment fails, try user camera without specifying device
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          width: { ideal: 400 },
+          height: { ideal: 300 }
+        }
+      });
+    }
     video.srcObject = stream;
     faceStatus.textContent = "Camera ready. Click 'Start Face Recognition' to begin.";
     faceStatus.className = "status-text status-info";
