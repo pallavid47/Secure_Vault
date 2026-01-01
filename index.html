@@ -63,7 +63,7 @@
                 <div class="upload-area" id="uploadArea">
                     <div class="upload-icon">📁</div>
                     <h3>Drop files here or click to browse</h3>
-                    <p>Supports images and documents (Max 10MB per file)</p>
+                        <p>Supports images and documents (Max 2MB per file)</p>
                     <input type="file" id="fileInput" multiple accept="image/*,.pdf,.doc,.docx,.txt" hidden>
                     <button class="primary-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
                 </div>
@@ -158,12 +158,33 @@
         
         <!-- Tabs Navigation -->
         <div class="tabs">
-            <button class="tab-btn active" data-tab="passwords">Passwords</button>
-            <button class="tab-btn" data-tab="files">Files & Documents</button>
+            <button class="tab-btn active" data-tab="files">Files & Documents</button>
+            <button class="tab-btn" data-tab="passwords">Passwords</button>
+        </div>
+        
+        <!-- Files Tab -->
+        <div id="filesTab" class="tab-content active">
+            <div class="files-header">
+                <button id="uploadNewBtn" class="primary-btn">📁 Upload New Files</button>
+                <div class="storage-info">
+                    <span>Storage: <span id="storageUsed">0 MB</span> used</span>
+                </div>
+            </div>
+            
+            <div class="files-grid" id="filesGrid">
+                <!-- Files will appear here -->
+            </div>
+            
+            <div class="empty-state" id="emptyFilesState">
+                <div class="empty-icon">📁</div>
+                <h3>No files uploaded yet</h3>
+                <p>Upload your important documents and images to keep them secure.</p>
+                <button class="primary-btn" onclick="showUploadModal()">Upload Your First File</button>
+            </div>
         </div>
         
         <!-- Passwords Tab -->
-        <div id="passwordsTab" class="tab-content active">
+        <div id="passwordsTab" class="tab-content">
             <div class="form">
                 <div class="row">
                     <label for="type">Type</label>
@@ -213,27 +234,6 @@
                     <!-- Password entries will appear here -->
                 </tbody>
             </table>
-        </div>
-        
-        <!-- Files Tab -->
-        <div id="filesTab" class="tab-content">
-            <div class="files-header">
-                <button id="uploadNewBtn" class="primary-btn">📁 Upload New Files</button>
-                <div class="storage-info">
-                    <span>Storage: <span id="storageUsed">0 MB</span> used</span>
-                </div>
-            </div>
-            
-            <div class="files-grid" id="filesGrid">
-                <!-- Files will appear here -->
-            </div>
-            
-            <div class="empty-state" id="emptyFilesState">
-                <div class="empty-icon">📁</div>
-                <h3>No files uploaded yet</h3>
-                <p>Upload your important documents and images to keep them secure.</p>
-                <button class="primary-btn" onclick="showUploadModal()">Upload Your First File</button>
-            </div>
         </div>
         
         <p class="note">Your passwords and files are encrypted with your master key and stored locally in your browser.</p>

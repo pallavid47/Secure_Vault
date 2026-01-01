@@ -137,7 +137,7 @@ function hideUploadModal() {
 }
 
 function handleFileSelect(files) {
-  const maxSize = 10 * 1024 * 1024; // 10MB
+  const maxSize = 2 * 1024 * 1024; // 2MB to avoid localStorage quota errors
   
   for (let file of files) {
     if (file.size > maxSize) {
@@ -240,7 +240,13 @@ async function uploadFiles() {
     files.push(fileEntry);
   }
   
-  saveFilesToStorage(files);
+  try {
+    saveFilesToStorage(files);
+  } catch (err) {
+    alert("Unable to store files. Please use smaller files (under 2MB) to stay within browser storage limits.");
+    return;
+  }
+  
   hideUploadModal();
   loadFiles();
   alert('Files uploaded and encrypted successfully!');
@@ -291,6 +297,7 @@ function loadFiles() {
         <span>${new Date(file.uploadedAt).toLocaleDateString()}</span>
       </div>
       <div class="file-actions">
+        <button class="file-action-btn" onclick="previewFile('${file.id}')">Preview</button>
         <button class="file-action-btn download" onclick="downloadFile('${file.id}')">Download</button>
         <button class="file-action-btn delete" onclick="deleteFile('${file.id}')">Delete</button>
       </div>
@@ -300,6 +307,34 @@ function loadFiles() {
   });
   
   updateStorageInfo();
+}
+
+async function previewFile(fileId) {
+  const masterKey = prompt("Enter master key to decrypt and preview:");
+  if (!masterKey) return;
+  
+  const files = getFilesFromStorage();
+  const file = files.find(f => f.id === fileId);
+  
+  if (!file) {
+    alert("File not found!");
+    return;
+  }
+  
+  try {
+    const decryptedData = CryptoJS.AES.decrypt(file.encryptedData, masterKey).toString(CryptoJS.enc.Utf8);
+    if (!decryptedData) throw new Error("Decrypt failed");
+    
+    const win = window.open();
+    if (!win) {
+      alert("Please allow pop-ups to preview files.");
+      return;
+    }
+    // Use an iframe to render most file types directly from the data URL.
+    win.document.write(`<iframe src="${decryptedData}" style="width:100%;height:100%;border:none;"></iframe>`);
+  } catch (err) {
+    alert("Failed to decrypt file. Please check your master key.");
+  }
 }
 
 function updateStorageInfo() {
